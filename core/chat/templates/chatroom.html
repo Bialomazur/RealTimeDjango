@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Awesome Chat App</title>
+</head>
+<body>
+
+    <textarea id="chat-text" cols="80" rows="30"></textarea><br>
+    <input id="input" type="text" size="80">
+    <input id="submit" type="button" value="Send">
+
+    <script>
+        const roomName = "{{ room_name }}"
+        const username = "{{ request.user }}"
+
+        document.getElementById("submit").onclick = function (e) {
+            const messageInputDom = document.getElementById("input")
+            const message = messageInputDom.value
+            chatSocket.send(JSON.stringify({
+                "message": message,
+                "username": username
+            }))
+
+            messageInputDom.value = ""
+        }
+
+        const chatSocket = new WebSocket(
+            "ws://" +
+            window.location.host +
+            "/ws/chat/" +
+            roomName + 
+            "/"
+        )
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data)
+            console.log(data)
+            document.getElementById("chat-text").innerHTML += (data.username +
+            ":\t" + data.message + "\n")
+        } 
+    </script>
+    
+</body>
+</html>
